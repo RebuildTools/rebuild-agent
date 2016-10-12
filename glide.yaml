@@ -1,0 +1,13 @@
+package: github.com/RebuildTools/rebuild-agent
+homepage: https://rebuild.haworth.id.au
+license: Apache v2.0
+import:
+- package: github.com/Sirupsen/logrus
+  version: v0.10.0
+- package: github.com/x-cray/logrus-prefixed-formatter
+- package: github.com/RebuildTools/rebuild-agent-protocol
+  subpackages:
+  - golang
+- package: github.com/CrowdSurge/banner
+- package: github.com/fatih/color
+  version: v1.0.0
