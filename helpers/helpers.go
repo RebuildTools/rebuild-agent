@@ -3,6 +3,7 @@ package helpers
 import (
 	"io/ioutil"
 	"golang.org/x/sys/unix"
+	"strings"
 )
 
 // AgentVersion defines the build of
@@ -23,7 +24,7 @@ const initrdReleaseFile = "/lib/rebuild/initrd-release"
 func GetInitrdVersion() (string, error) {
 	ver, err := ioutil.ReadFile(initrdReleaseFile)
 
-	return string(ver), err
+	return strings.TrimSpace(string(ver)), err
 }
 
 // GetKernelVersion queries uname
