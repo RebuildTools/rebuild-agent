@@ -1,6 +1,9 @@
 package helpers
 
-import "io/ioutil"
+import (
+	"io/ioutil"
+	"golang.org/x/sys/unix"
+)
 
 // AgentVersion defines the build of
 // the agent along with a short
@@ -21,4 +24,23 @@ func GetInitrdVersion() (string, error) {
 	ver, err := ioutil.ReadFile(initrdReleaseFile)
 
 	return string(ver), err
+}
+
+// GetKernelVersion queries uname
+// and returns the "Release" field
+// as a string
+func GetKernelVersion() (string, error){
+	uname := unix.Utsname{}
+	err := unix.Uname(&uname)
+
+	if err != nil {
+		return "", nil
+	}
+
+	releaseBytes := make([]byte, len(uname.Release))
+	for i, v := range uname.Release {
+		releaseBytes[i] = byte(v)
+	}
+
+	return string(releaseBytes), nil
 }

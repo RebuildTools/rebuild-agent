@@ -19,7 +19,15 @@ func Run(logger *logrus.Logger) {
 
 	initrdVer, err := helpers.GetInitrdVersion()
 
-	if err != nil { logger.WithError(err).Fatal("Failed to get the Rebuild Initrd version from file") }
+	if err != nil {
+		logger.WithError(err).Fatal("Failed to get the Rebuild Initrd version from file")
+	}
+
+	kernelVer, err := helpers.GetKernelVersion()
+
+	if err != nil {
+		logger.WithError(err).Fatal("Failed to get the Rebuild Kernel version")
+	}
 
 	banner.Print("rebuild agent")
 
@@ -29,6 +37,8 @@ func Run(logger *logrus.Logger) {
 		color.GreenString("Agent v%s", helpers.AgentVersion),
 		"-",
 		color.YellowString("Initrd v%s", initrdVer),
+		"-",
+		color.MagentaString("Kernel v%s", kernelVer),
 	)
 
 	for { time.Sleep(60 * time.Second) }
