@@ -18,27 +18,37 @@ func Run(logger *logrus.Logger) {
 	injectExitHandler(logger)
 
 	initrdVer, err := helpers.GetInitrdVersion()
-
-	if err != nil {
-		logger.WithError(err).Fatal("Failed to get the Rebuild Initrd version from file")
-	}
+	helpers.HandleError(logger, "Retrieving Initrd version", err)
 
 	kernelVer, err := helpers.GetKernelVersion()
+	helpers.HandleError(logger, "Retrieving Kernel version", err)
 
-	if err != nil {
-		logger.WithError(err).Fatal("Failed to get the Rebuild Kernel version")
-	}
+	systemType, err := helpers.GetDMIValue("product_name")
+	helpers.HandleError(logger, "Retrieving DMI header value", err)
+
+	systemSerial, err := helpers.GetDMIValue("product_serial")
+	helpers.HandleError(logger, "Retrieving DMI header value", err)
+
+	systemVendor, err := helpers.GetDMIValue("chassis_vendor")
+	helpers.HandleError(logger, "Retrieving DMI header value", err)
+
+	systemUuid, err := helpers.GetDMIValue("product_uuid")
+	helpers.HandleError(logger, "Retrieving DMI header value", err)
 
 	banner.Print("rebuild agent")
 
-	fmt.Println()
-
 	fmt.Println(
+		"\n",
 		color.GreenString("Agent v%s", helpers.AgentVersion),
 		"-",
 		color.YellowString("Initrd v%s", initrdVer),
 		"-",
 		color.MagentaString("Kernel v%s", kernelVer),
+		"\n\n\n",
+		fmt.Sprintf("%-15s: %s\n", "System Type", systemType),
+		fmt.Sprintf("%-15s: %s\n", "System Vendor", systemVendor),
+		fmt.Sprintf("%-15s: %s\n", "System Serial", systemSerial),
+		fmt.Sprintf("%-15s: %s\n", "System UUID", systemUuid),
 	)
 
 	for { time.Sleep(60 * time.Second) }
