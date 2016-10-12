@@ -17,6 +17,10 @@ import (
 func Run(logger *logrus.Logger) {
 	injectExitHandler(logger)
 
+	initrdVer, err := helpers.GetInitrdVersion()
+
+	if err != nil { logger.WithError(err).Fatal("Failed to get the Rebuild Initrd version from file") }
+
 	banner.Print("rebuild agent")
 
 	fmt.Println()
@@ -24,7 +28,7 @@ func Run(logger *logrus.Logger) {
 	fmt.Println(
 		color.GreenString("Agent v%s", helpers.AgentVersion),
 		"-",
-		color.YellowString("Initrd v%s", helpers.GetInitrdVersion()),
+		color.YellowString("Initrd v%s", initrdVer),
 	)
 
 	for { time.Sleep(60 * time.Second) }
