@@ -21,7 +21,11 @@ func Run(logger *logrus.Logger) {
 
 	fmt.Println()
 
-	fmt.Println(color.GreenString("Agent v%s", helpers.AgentVersion))
+	fmt.Println(
+		color.GreenString("Agent v%s", helpers.AgentVersion),
+		"-",
+		color.YellowString("Initrd v%s", helpers.GetInitrdVersion()),
+	)
 
 	for { time.Sleep(60 * time.Second) }
 }
