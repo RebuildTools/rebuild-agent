@@ -11,3 +11,5 @@ import:
 - package: github.com/CrowdSurge/banner
 - package: github.com/fatih/color
   version: v1.0.0
+- package: github.com/shirou/gopsutil
+  version: v2.1

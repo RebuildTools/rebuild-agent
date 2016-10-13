@@ -14,6 +14,7 @@ import (
 	"golang.org/x/sys/unix"
 	"strings"
 	"github.com/Sirupsen/logrus"
+	"strconv"
 )
 
 // AgentVersion defines the build of
@@ -87,4 +88,14 @@ func GetDMIValue(header string) (string, error) {
 	headerValue, err := ioutil.ReadFile(dmiHeaderFile)
 
 	return strings.TrimSpace(string(headerValue)), err
+}
+
+// stringToInt32 converts a string
+// into a 32bit integer
+func StringToInt32(value string) int32 {
+	val, err := strconv.ParseInt(value, 10, 32)
+
+	if err != nil { panic(err) }
+
+	return int32(val)
 }

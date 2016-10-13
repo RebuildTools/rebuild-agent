@@ -10,6 +10,7 @@ package main
 
 import (
 	"github.com/RebuildTools/rebuild-agent/banner"
+	"github.com/RebuildTools/rebuild-agent/profiler"
 
 	"os"
 	"strconv"
@@ -50,6 +51,7 @@ func init() {
 
 	// Add supported commands
 	supportedCommands["banner"] = banner.Run
+	supportedCommands["profile"] = profiler.Run
 }
 
 func main() {
