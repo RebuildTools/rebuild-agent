@@ -1,4 +1,7 @@
 package banner
+// banner is a command for the Rebuild
+// Agent that presents a quick over view
+// of the system the agent is running on
 
 import (
 	"github.com/RebuildTools/rebuild-agent/helpers"

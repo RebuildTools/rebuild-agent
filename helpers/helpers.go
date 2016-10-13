@@ -1,4 +1,10 @@
 package helpers
+// helpers is a package of functions
+// designed to make the development
+// process for the Rebuild Agent a
+// little bit easier by providing
+// commonly used functions and variables
+// in a common package
 
 import (
 	"os"
