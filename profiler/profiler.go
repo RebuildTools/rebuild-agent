@@ -65,35 +65,37 @@ func profileSystemMemory(sysProfile *protocol.System, logger *logrus.Logger) {
 func profileSystemProcessors(sysProfile *protocol.System, logger *logrus.Logger) {
 	logger.Debug("Profilling System Processors")
 
-	cpus, err := cpu.Info()
+	sysCpus, err := cpu.Info()
 	helpers.HandleError(logger, "Collecting system proccessor information", err)
 
-	cpuSockets := []*protocol.CpuSocket{}
+	filteredCpus := map[int32]*cpu.InfoStat{}
 
-	sock := &protocol.CpuSocket{}
-	for _, cpu := range cpus {
-		if cpu.PhysicalID == "" {
-			cpu.PhysicalID = "0"
+	for _, sysCpu := range sysCpus {
+		if sysCpu.PhysicalID == "" {
+			sysCpu.PhysicalID = "0"
 		}
 
-		if helpers.StringToInt32(cpu.PhysicalID) != sock.SocketNumber {
-			cpuSockets = append(cpuSockets, sock)
+		if filteredCpus[helpers.StringToInt32(sysCpu.PhysicalID)] != nil {
+			continue
 		}
 
-		sock = &protocol.CpuSocket{
-			SocketNumber: 	helpers.StringToInt32(cpu.PhysicalID),
-			TotalCores: 	cpu.Cores,
-			VendorId: 	cpu.VendorID,
-			FamilyId: 	helpers.StringToInt32(cpu.Family),
-			ModelId: 	helpers.StringToInt32(cpu.Model),
-			ModelName: 	cpu.ModelName,
-			Mhz:  		cpu.Mhz,
-			CahceSize: 	cpu.CacheSize,
-			Flags: 		cpu.Flags,
-		}
+		filteredCpus[helpers.StringToInt32(sysCpu.PhysicalID)] = &sysCpu
 	}
 
-	cpuSockets = append(cpuSockets, sock)
+	cpuSockets := []*protocol.CpuSocket{}
+	for sysCpuSocket, sysCpu := range filteredCpus {
+		cpuSockets = append(cpuSockets, &protocol.CpuSocket{
+			SocketNumber: 	sysCpuSocket,
+			TotalCores: 	sysCpu.Cores,
+			VendorId: 	sysCpu.VendorID,
+			FamilyId: 	helpers.StringToInt32(sysCpu.Family),
+			ModelId: 	helpers.StringToInt32(sysCpu.Model),
+			ModelName: 	sysCpu.ModelName,
+			Mhz:  		sysCpu.Mhz,
+			CahceSize: 	sysCpu.CacheSize,
+			Flags: 		sysCpu.Flags,
+		})
+	}
 
 	sysProfile.SystemSockets = cpuSockets
 }
