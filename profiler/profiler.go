@@ -14,6 +14,7 @@ import (
 	"github.com/RebuildTools/rebuild-agent/helpers"
 	"fmt"
 	"encoding/json"
+	"os/exec"
 )
 
 // Run is called by the main of
@@ -43,6 +44,7 @@ func Run(logger *logrus.Logger) {
 	profileSystemMemory(&systemProfile, logger)
 	profileSystemProcessors(&systemProfile, logger)
 	profileNetworkInterfaces(&systemProfile, logger)
+	profileSystemStorage(&systemProfile, logger)
 
 	// TODO(lh): Marshal the profile to bytes and send it via TCP to the core
 	out, _ := json.Marshal(systemProfile)
@@ -135,4 +137,49 @@ func profileNetworkInterfaces(sysProfile *protocol.System, logger *logrus.Logger
 	}
 
 	sysProfile.SystemNetworkInterfaces = interfaces
+}
+
+// profileSystemStorage calls the Linux tool
+// "lsblk" to list the block devices know to
+// the system, it takes this information and
+// converts it to message for Rebuild and adds
+// it to the system profile
+func profileSystemStorage(sysProfile *protocol.System, logger *logrus.Logger) {
+	logger.Debug("Profilling System Storage")
+
+	lsblkPath, err := exec.LookPath("lsblk")
+	helpers.HandleError(logger, "Searching for lsblk executable", err)
+
+	lsblkOutput, err := exec.Command(lsblkPath, "--output", "NAME,SIZE,TYPE,MODEL,SERIAL,VENDOR,REV", "-J", "-d", "-b").Output()
+	helpers.HandleError(logger, "Collecting block device information", err)
+
+	unmarshaledBlockDevices := struct {
+		Devices	[]struct{
+			Name	string `json:"name"`
+			Size	string `json:"size"`
+			Type	string `json:"type"`
+			Model	string `json:"model"`
+			Serial	string `json:"serial"`
+			Vendor	string `json:"vendor"`
+			Rev	string `json:"rev"`
+		} `json:"blockdevices"`
+	}{}
+
+	err = json.Unmarshal(lsblkOutput, &unmarshaledBlockDevices)
+	helpers.HandleError(logger, "Unmarshalling block device information", err)
+
+	blockDevices := []*protocol.BlockDevice{}
+	for _, device := range unmarshaledBlockDevices.Devices {
+		blockDevices = append(blockDevices, &protocol.BlockDevice{
+			Name:		device.Name,
+			Size:		helpers.StringToInt64(device.Size),
+			Type:		device.Type,
+			Model:		device.Model,
+			Serial:		device.Serial,
+			Vendor:		device.Vendor,
+			Revision:	device.Rev,
+		})
+	}
+
+	sysProfile.SystemStorage = blockDevices
 }

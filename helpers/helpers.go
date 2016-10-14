@@ -99,3 +99,13 @@ func StringToInt32(value string) int32 {
 
 	return int32(val)
 }
+
+// stringToInt64 converts a string
+// into a 64bit integer
+func StringToInt64(value string) int64 {
+	val, err := strconv.ParseInt(value, 10, 64)
+
+	if err != nil { panic(err) }
+
+	return int64(val)
+}
